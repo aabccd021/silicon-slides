@@ -2,53 +2,56 @@ bg="#000000"
 size="1920x1080"
 outdir="slides"
 
-max_rows=0
-max_cols=0
+max_row=0
+max_col=0
 
-for input_file in "$@"; do
+input_file="$0"
+base_name=$(basename "$input_file")
+dir_name=$(dirname "$input_file")
+
+group_name=$(echo "$base_name" | cut -d'-' -f1)
+
+input_files=$(find "$dir_name" -name "$group_name-*.txt" | sort)
+
+for input_file in $input_files; do
 
   rows=$(wc -l <"$input_file")
-  if [ "$rows" -gt "$max_rows" ]; then
-    max_rows=$rows
+  if [ "$rows" -gt "$max_row" ]; then
+    max_row=$rows
   fi
 
   cols=$(wc -L <"$input_file")
-  if [ "$cols" -gt "$max_cols" ]; then
-    max_cols=$cols
+  if [ "$cols" -gt "$max_col" ]; then
+    max_col=$cols
   fi
 
 done
 
-line=$(printf "%-${max_cols}s" "")
-
-for input_file in "$@"; do
+tmpdir=$(mktemp -d)
+for input_file in $input_files; do
   ext=${input_file##*.}
 
-  tmp0="tmp.$ext"
+  input_file_padded="$tmpdir/input_file.$ext"
 
-  echo "$line" >"$tmp0"
+  cp "$input_file" "$input_file_padded"
 
-  line_pad=$((max_rows - $(wc -l <"$input_file")))
+  last_line=$(tail -n 1 "$input_file_padded")
+  last_line_col=${#last_line}
+  col_pad_len=$((max_col - last_line_col))
+  printf "%-${col_pad_len}s" "" >>"$input_file_padded"
 
-  cat "$input_file" ">>$tmp0"
+  row_pad=$((max_row - $(wc -l <"$input_file")))
 
   i=0
-  while [ $i -lt $line_pad ]; do
-    echo >>"$tmp0"
+  while [ $i -lt $row_pad ]; do
+    echo >>"$input_file_padded"
     i=$((i + 1))
   done
 
-  echo >>"$tmp0"
-
   out_path=$(basename "$input_file")
-  out_path=${out_path#*-}
   out_path="$outdir/$out_path.png"
 
-  args="--output $tmpdir/tmp1.png --background $bg"
-
-  tmpdir=$(mktemp -d)
-
-  silicon "$tmp0" "$args"
+  silicon "$input_file_padded" "--output $tmpdir/tmp1.png --background $bg"
 
   convert "$tmpdir/tmp1.png" \
     -resize "$size^" \
