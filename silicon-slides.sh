@@ -29,29 +29,29 @@ done
 
 tmpdir=$(mktemp -d)
 for group_file in $group_files; do
-  ext=${group_file##*.}
 
-  group_file_padded="$tmpdir/group_file.$ext"
+  mv "$group_file" "$tmpdir/tmp0.txt"
 
-  cp "$group_file" "$group_file_padded"
-
-  last_line=$(tail -n 1 "$group_file_padded")
+  last_line=$(tail -n 1 "$tmpdir/tmp0.txt")
   last_line_col=${#last_line}
   col_pad_len=$((max_col - last_line_col))
-  printf "%-${col_pad_len}s" "" >>"$group_file_padded"
+  printf "%-${col_pad_len}s" "" >>"$tmpdir/tmp0.txt"
 
   row_pad=$((max_row - $(wc -l <"$group_file")))
 
   i=0
   while [ $i -lt $row_pad ]; do
-    echo >>"$group_file_padded"
+    echo >>"$tmpdir/tmp0.txt"
     i=$((i + 1))
   done
 
   out_path=$(basename "$group_file")
   out_path="$outdir/$out_path.png"
 
-  silicon "$group_file_padded" "--output $tmpdir/tmp1.png --background $bg"
+  ext=${group_file##*.}
+  mv "$tmpdir/tmp0.txt" "$tmpdir/tmp0.$ext"
+
+  silicon "$tmpdir/tmp0.txt" "--output $tmpdir/tmp1.png --background $bg"
 
   convert "$tmpdir/tmp1.png" \
     -resize "$size^" \
@@ -60,8 +60,8 @@ for group_file in $group_files; do
   convert "$tmpdir/tmp2.png" \
     -background "$bg" \
     -gravity center \
-    -resize $size \
-    -extent $size \
+    -resize "$size" \
+    -extent "$size" \
     "$tmpdir/tmp3.png"
 
   mv "$tmpdir/tmp3.png" "$out_path"
