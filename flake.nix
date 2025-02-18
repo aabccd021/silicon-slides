@@ -50,7 +50,6 @@
         export FONTCONFIG_FILE=${fontsConf}
         ${silicon-slides-nix}/bin/silicon-slides-nix \
           --outdir "$out/snapshot" \
-          --size "1920x1080" \
           --silicon-config ${siliconConfig} \
           ${slides}
       '';
