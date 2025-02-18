@@ -1,6 +1,30 @@
-bg="#000000"
-size="1920x1080"
-outdir="slides"
+# bg="#000000"
+# size="1920x1080"
+# outdir="slides"
+bg=${bg:-"#000000"}
+size=${size:-"1920x1080"}
+outdir=${outdir:-"$PWD"}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+  --background)
+    bg="$2"
+    shift
+    ;;
+  --size)
+    size="$2"
+    shift
+    ;;
+  --outdir)
+    outdir="$2"
+    shift
+    ;;
+  *)
+    break
+    ;;
+  esac
+  shift
+done
 
 max_row=0
 max_col=0
