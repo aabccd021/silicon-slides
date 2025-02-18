@@ -1,7 +1,7 @@
 bg=${bg:-"#000000"}
 size=${size:-"1920x1080"}
 outdir=${outdir:-"$PWD"}
-silicon_args=""
+silicon_config=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -18,7 +18,7 @@ while [ $# -gt 0 ]; do
     shift
     ;;
   --silicon-config)
-    silicon_args="$silicon_args --config-file $2"
+    silicon_config="$2"
     shift
     ;;
   *)
@@ -27,6 +27,11 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
+
+if [ -n "$silicon_config" ]; then
+  config_path=$(silicon --config-file)
+  cp -L "$silicon_config" "$config_path"
+fi
 
 max_row=0
 max_col=0
@@ -54,7 +59,10 @@ for input_file in "$@"; do
   last_line=$(tail -n 1 "$tmpdir/tmp0.txt")
   last_line_col=${#last_line}
   col_pad_len=$((max_col - last_line_col))
-  printf "%-${col_pad_len}s" "" >>"$tmpdir/tmp0.txt"
+
+  head -n -1 "$tmpdir/tmp0.txt" >"$tmpdir/tmp0.txt.tmp"
+  mv "$tmpdir/tmp0.txt.tmp" "$tmpdir/tmp0.txt"
+  printf "%s%-${col_pad_len}s" "$last_line" "" >>"$tmpdir/tmp0.txt"
 
   row_pad=$((max_row - $(wc -l <"$input_file")))
 
@@ -70,8 +78,7 @@ for input_file in "$@"; do
   ext=${input_file##*.}
   mv "$tmpdir/tmp0.txt" "$tmpdir/tmp0.$ext"
 
-  # shellcheck disable=SC2086
-  silicon "$tmpdir/tmp0.$ext" --output "$tmpdir/tmp1.png" $silicon_args
+  silicon "$tmpdir/tmp0.$ext" --output "$tmpdir/tmp1.png"
 
   magick "$tmpdir/tmp1.png" \
     -resize "$size^" \

@@ -20,6 +20,18 @@
         ];
       };
 
+      siliconConfig = pkgs.writeText "silicon-config" ''
+        --font "JetBrainsMono Nerd Font=200"
+        --background "#000000"
+        --no-window-controls
+        --no-line-number
+        --no-round-corner
+        --pad-horiz 200
+        --pad-vert 200
+        --line-pad 12
+        --theme 'DarkNeon'
+      '';
+
       snapshot-test = pkgs.runCommandNoCCLocal "test"
         {
           buildInputs = [ silicon-slides ];
@@ -33,6 +45,8 @@
         ln -s ${./test/003.md} ./003.md
         silicon-slides \
           --outdir "$out/snapshot" \
+          --size "1920x1080" \
+          --silicon-config ${siliconConfig} \
           ./001.md ./002.md ./003.md
       '';
 
