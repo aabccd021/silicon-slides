@@ -10,13 +10,33 @@
 
       silicon-slides = pkgs.writeShellApplication {
         name = "silicon-slides";
-        runtimeInputs = [ pkgs.fzf pkgs.jq ];
+        runtimeInputs = [ pkgs.silicon pkgs.imagemagick ];
         text = builtins.readFile ./silicon-slides.sh;
       };
+
+      fontsConf = pkgs.makeFontsConf {
+        fontDirectories = [
+          pkgs.nerd-fonts.jetbrains-mono
+        ];
+      };
+
+      test = pkgs.runCommandNoCCLocal "test"
+        {
+          buildInputs = [ silicon-slides ];
+        } ''
+        mkdir "$out"
+        export FONTCONFIG_FILE=${fontsConf}
+        export XDG_CONFIG_HOME=$PWD/config
+        export SILICON_CACHE_PATH=$PWD/silicone-cache
+        silicon-slides \
+          --outdir "$out" \
+          ${./test/001.md} ${./test/002.md} ${./test/003.md}
+      '';
 
       packages = {
         default = silicon-slides;
         silicon-slides = silicon-slides;
+        test = test;
         formatting = treefmtEval.config.build.check self;
       };
 
@@ -37,12 +57,6 @@
     in
 
     {
-
-      devShells.x86_64-linux.default = pkgs.mkShellNoCC {
-        buildInputs = [
-          silicon-slides
-        ];
-      };
 
       packages.x86_64-linux = gcroot;
 
