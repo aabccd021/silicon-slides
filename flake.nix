@@ -45,13 +45,10 @@
         ${./test/004.md} --highlight-lines 5-6;7
       '';
 
-      snapshot-test = pkgs.runCommandNoCCLocal "test"
-        {
-          buildInputs = [ silicon-slides-nix ];
-        } ''
+      snapshot-test = pkgs.runCommandNoCCLocal "test" { } ''
         mkdir -p "$out/snapshot"
         export FONTCONFIG_FILE=${fontsConf}
-        silicon-slides-nix \
+        ${silicon-slides-nix}/bin/silicon-slides-nix \
           --outdir "$out/snapshot" \
           --size "1920x1080" \
           --silicon-config ${siliconConfig} \
