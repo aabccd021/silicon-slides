@@ -24,12 +24,12 @@
         {
           buildInputs = [ silicon-slides ];
         } ''
-        mkdir "$out"
+        mkdir -p "$out/snapshot"
         export FONTCONFIG_FILE=${fontsConf}
         export XDG_CONFIG_HOME=$PWD/config
         export SILICON_CACHE_PATH=$PWD/silicone-cache
         silicon-slides \
-          --outdir "$out" \
+          --outdir "$out/snapshot" \
           ${./test/001.md} ${./test/002.md} ${./test/003.md}
       '';
 

@@ -1,6 +1,7 @@
 bg=${bg:-"#000000"}
 size=${size:-"1920x1080"}
 outdir=${outdir:-"$PWD"}
+silicon_args=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -14,6 +15,10 @@ while [ $# -gt 0 ]; do
     ;;
   --outdir)
     outdir="$2"
+    shift
+    ;;
+  --silicon-config)
+    silicon_args="$silicon_args --config-file $2"
     shift
     ;;
   *)
@@ -65,10 +70,8 @@ for input_file in "$@"; do
   ext=${input_file##*.}
   mv "$tmpdir/tmp0.txt" "$tmpdir/tmp0.$ext"
 
-  silicon \
-    "$tmpdir/tmp0.$ext" \
-    --font "JetBrainsMono Nerd Font=200" \
-    --output "$tmpdir/tmp1.png"
+  # shellcheck disable=SC2086
+  silicon "$tmpdir/tmp0.$ext" --output "$tmpdir/tmp1.png" $silicon_args
 
   magick "$tmpdir/tmp1.png" \
     -resize "$size^" \
