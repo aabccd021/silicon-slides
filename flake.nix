@@ -14,6 +14,12 @@
         text = builtins.readFile ./silicon-slides.sh;
       };
 
+      silicon-slides-nix = pkgs.writeShellApplication {
+        name = "silicon-slides-nix";
+        runtimeInputs = [ silicon-slides ];
+        text = builtins.readFile ./silicon-slides-nix.sh;
+      };
+
       fontsConf = pkgs.makeFontsConf {
         fontDirectories = [
           pkgs.nerd-fonts.jetbrains-mono
@@ -41,29 +47,15 @@
 
       snapshot-test = pkgs.runCommandNoCCLocal "test"
         {
-          buildInputs = [ silicon-slides ];
+          buildInputs = [ silicon-slides-nix ];
         } ''
         mkdir -p "$out/snapshot"
         export FONTCONFIG_FILE=${fontsConf}
-        export XDG_CONFIG_HOME=$PWD/config
-        export SILICON_CACHE_PATH=$PWD/silicone-cache
-
-        tmpfile=$(mktemp)
-        while IFS= read -r line; do
-          filename=$(echo $line | awk '{print $1}')
-          args=$(echo $line | awk '{$1=""; print $0}')
-          normalized=$(echo $filename | xargs basename | sed 's/^[^-]*-//')
-          cp -L "$filename" "$normalized"
-          echo "$normalized $args" >> "$tmpfile"
-        done < ${slides}
-
-        cat "$tmpfile"
-
-        silicon-slides \
+        silicon-slides-nix \
           --outdir "$out/snapshot" \
           --size "1920x1080" \
           --silicon-config ${siliconConfig} \
-          "$tmpfile"
+          ${slides}
       '';
 
       packages = {
