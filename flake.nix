@@ -32,6 +32,13 @@
         --theme 'DarkNeon'
       '';
 
+      slides = pkgs.writeText "slides" ''
+        ./001.md
+        ./002.md
+        ./003.md
+        ./004.md --highlight-lines 5-6;7
+      '';
+
       snapshot-test = pkgs.runCommandNoCCLocal "test"
         {
           buildInputs = [ silicon-slides ];
@@ -43,11 +50,12 @@
         ln -s ${./test/001.md} ./001.md
         ln -s ${./test/002.md} ./002.md
         ln -s ${./test/003.md} ./003.md
+        ln -s ${./test/004.md} ./004.md
         silicon-slides \
           --outdir "$out/snapshot" \
           --size "1920x1080" \
           --silicon-config ${siliconConfig} \
-          ./001.md ./002.md ./003.md
+          ${slides}
       '';
 
       packages = {

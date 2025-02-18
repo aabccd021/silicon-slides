@@ -28,6 +28,17 @@ while [ $# -gt 0 ]; do
   shift
 done
 
+slides="$1"
+if [ -z "$slides" ]; then
+  echo "Usage: silicon-slides.sh [options] <slides>"
+  echo "Options:"
+  echo "  --background <color>  Background color of the slides (default: #000000)"
+  echo "  --size <size>         Size of the slides (default: 1920x1080)"
+  echo "  --outdir <dir>        Output directory (default: current directory)"
+  echo "  --silicon-config <file>  Silicon config file"
+  exit 1
+fi
+
 if [ -n "$silicon_config" ]; then
   config_path=$(silicon --config-file)
   cp -L "$silicon_config" "$config_path"
@@ -36,7 +47,8 @@ fi
 max_row=0
 max_col=0
 
-for input_file in "$@"; do
+while IFS= read -r input_line; do
+  input_file=$(echo "$input_line" | awk '{print $1}')
 
   rows=$(wc -l <"$input_file")
   if [ "$rows" -gt "$max_row" ]; then
@@ -48,10 +60,15 @@ for input_file in "$@"; do
     max_col=$cols
   fi
 
-done
+done <"$slides"
 
 tmpdir=$(mktemp -d)
-for input_file in "$@"; do
+# for input_file in "$@"; do
+while IFS= read -r input_line; do
+  input_file=$(echo "$input_line" | awk '{print $1}')
+
+  # second column and after are input arguments
+  input_args=$(echo "$input_line" | awk '{$1=""; print $0}')
 
   cp -L "$input_file" "$tmpdir/tmp0.txt"
   chmod 600 "$tmpdir/tmp0.txt"
@@ -78,7 +95,8 @@ for input_file in "$@"; do
   ext=${input_file##*.}
   mv "$tmpdir/tmp0.txt" "$tmpdir/tmp0.$ext"
 
-  silicon "$tmpdir/tmp0.$ext" --output "$tmpdir/tmp1.png"
+  # shellcheck disable=SC2086
+  silicon "$tmpdir/tmp0.$ext" --output "$tmpdir/tmp1.png" $input_args
 
   magick "$tmpdir/tmp1.png" \
     -resize "$size^" \
@@ -92,4 +110,4 @@ for input_file in "$@"; do
     "$tmpdir/tmp3.png"
 
   mv "$tmpdir/tmp3.png" "$out_path"
-done
+done <"$slides"
