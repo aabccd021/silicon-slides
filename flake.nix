@@ -33,10 +33,10 @@
       '';
 
       slides = pkgs.writeText "slides" ''
-        ./001.md
-        ./002.md
-        ./003.md
-        ./004.md --highlight-lines 5-6;7
+        ${./test/001.md}
+        ${./test/002.md}
+        ${./test/003.md}
+        ${./test/004.md} --highlight-lines 5-6;7
       '';
 
       snapshot-test = pkgs.runCommandNoCCLocal "test"
@@ -47,15 +47,23 @@
         export FONTCONFIG_FILE=${fontsConf}
         export XDG_CONFIG_HOME=$PWD/config
         export SILICON_CACHE_PATH=$PWD/silicone-cache
-        ln -s ${./test/001.md} ./001.md
-        ln -s ${./test/002.md} ./002.md
-        ln -s ${./test/003.md} ./003.md
-        ln -s ${./test/004.md} ./004.md
+
+        tmpfile=$(mktemp)
+        while IFS= read -r line; do
+          filename=$(echo $line | awk '{print $1}')
+          args=$(echo $line | awk '{$1=""; print $0}')
+          normalized=$(echo $filename | xargs basename | sed 's/^[^-]*-//')
+          cp -L "$filename" "$normalized"
+          echo "$normalized $args" >> "$tmpfile"
+        done < ${slides}
+
+        cat "$tmpfile"
+
         silicon-slides \
           --outdir "$out/snapshot" \
           --size "1920x1080" \
           --silicon-config ${siliconConfig} \
-          ${slides}
+          "$tmpfile"
       '';
 
       packages = {
