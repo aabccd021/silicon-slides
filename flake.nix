@@ -20,7 +20,7 @@
         ];
       };
 
-      test = pkgs.runCommandNoCCLocal "test"
+      snapshot-test = pkgs.runCommandNoCCLocal "test"
         {
           buildInputs = [ silicon-slides ];
         } ''
@@ -36,7 +36,7 @@
       packages = {
         default = silicon-slides;
         silicon-slides = silicon-slides;
-        test = test;
+        snapshot-test = snapshot-test;
         formatting = treefmtEval.config.build.check self;
       };
 
