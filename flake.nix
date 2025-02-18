@@ -56,7 +56,7 @@
       '';
 
       packages = {
-        default = silicon-slides;
+        default = silicon-slides-nix;
         silicon-slides = silicon-slides;
         silicon-slides-nix = silicon-slides-nix;
         snapshot-test = snapshot-test;
