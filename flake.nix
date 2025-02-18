@@ -58,6 +58,7 @@
       packages = {
         default = silicon-slides;
         silicon-slides = silicon-slides;
+        silicon-slides-nix = silicon-slides-nix;
         snapshot-test = snapshot-test;
         formatting = treefmtEval.config.build.check self;
       };
