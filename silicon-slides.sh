@@ -59,7 +59,7 @@ for input_file in "$@"; do
   row_pad=$((max_row - $(wc -l <"$input_file")))
 
   i=0
-  while [ $i -lt $row_pad ]; do
+  while [ $i -le $row_pad ]; do
     echo >>"$tmpdir/tmp0.txt"
     i=$((i + 1))
   done
