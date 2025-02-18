@@ -28,9 +28,12 @@
         export FONTCONFIG_FILE=${fontsConf}
         export XDG_CONFIG_HOME=$PWD/config
         export SILICON_CACHE_PATH=$PWD/silicone-cache
+        ln -s ${./test/001.md} ./001.md
+        ln -s ${./test/002.md} ./002.md
+        ln -s ${./test/003.md} ./003.md
         silicon-slides \
           --outdir "$out/snapshot" \
-          ${./test/001.md} ${./test/002.md} ${./test/003.md}
+          ./001.md ./002.md ./003.md
       '';
 
       packages = {
