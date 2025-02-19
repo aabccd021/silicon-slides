@@ -90,6 +90,10 @@ while IFS= read -r input_line; do
   done
 
   out_path=$(basename "$input_file")
+
+  # remove extension
+  out_path=${out_path%.*}
+
   out_path="$outdir/$out_path.png"
 
   ext=${input_file##*.}
