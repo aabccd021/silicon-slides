@@ -74,7 +74,7 @@ while IFS= read -r input_line; do
   chmod 600 "$tmpdir/tmp0.txt"
 
   last_line=$(tail -n 1 "$tmpdir/tmp0.txt")
-  last_line_col=${#last_line}
+  last_line_col=$(echo "$last_line" | wc -L)
   col_pad_len=$((max_col - last_line_col))
 
   head -n -1 "$tmpdir/tmp0.txt" >"$tmpdir/tmp0.txt.tmp"
