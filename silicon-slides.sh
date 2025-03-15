@@ -70,17 +70,18 @@ while IFS= read -r input_line; do
   # second column and after are input arguments
   input_args=$(echo "$input_line" | awk '{$1=""; print $0}')
 
-  touch "$tmpdir/tmp0.txt"
+  cp -L "$input_file" "$tmpdir/tmp0.txt"
+  chmod 600 "$tmpdir/tmp0.txt"
 
-  # empty line at the beginning
-  echo >"$tmpdir/tmp0.txt"
+  last_line=$(tail -n 1 "$tmpdir/tmp0.txt")
+  last_line_col=${#last_line}
+  col_pad_len=$((max_col - last_line_col))
 
-  cat "$input_file" >>"$tmpdir/tmp0.txt"
+  head -n -1 "$tmpdir/tmp0.txt" >"$tmpdir/tmp0.txt.tmp"
+  mv "$tmpdir/tmp0.txt.tmp" "$tmpdir/tmp0.txt"
+  printf "%s%-${col_pad_len}s" "$last_line" "" >>"$tmpdir/tmp0.txt"
 
   row_pad=$((max_row - $(wc -l <"$input_file")))
-
-  # empty line at the end
-  printf "%${max_col}s" "" >>"$tmpdir/tmp0.txt"
 
   i=0
   while [ $i -le $row_pad ]; do
