@@ -54,7 +54,11 @@
           ${slides}
       '';
 
-      packages = {
+      devShells.default = pkgs.mkShellNoCC {
+        buildInputs = [ pkgs.nixd ];
+      };
+
+      packages = devShells // {
         default = silicon-slides-nix;
         silicon-slides = silicon-slides;
         silicon-slides-nix = silicon-slides-nix;
