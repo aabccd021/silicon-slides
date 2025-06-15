@@ -93,5 +93,7 @@
 
       formatter.x86_64-linux = treefmtEval.config.build.wrapper;
 
+      devShells.x86_64-linux = devShells;
+
     };
 }
