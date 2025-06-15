@@ -4,9 +4,9 @@
     treefmt-nix.url = "github:numtide/treefmt-nix";
   };
 
-  outputs = { nixpkgs, treefmt-nix, self }:
+  outputs = { self, ... }@inputs:
     let
-      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
 
       silicon-slides = pkgs.writeShellApplication {
         name = "silicon-slides";
@@ -66,7 +66,7 @@
         gcroot = pkgs.linkFarm "gcroot" packages;
       };
 
-      treefmtEval = treefmt-nix.lib.evalModule pkgs {
+      treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
         projectRootFile = "flake.nix";
         programs.nixpkgs-fmt.enable = true;
         programs.prettier.enable = true;
