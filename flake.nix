@@ -60,11 +60,14 @@
         silicon-slides-nix = silicon-slides-nix;
         snapshot-test = snapshot-test;
         formatting = treefmtEval.config.build.check self;
+        formatter = treefmtEval.config.build.wrapper;
       };
 
       gcroot = packages // {
         gcroot = pkgs.linkFarm "gcroot" packages;
       };
+
+      formatter = treefmtEval.config.build.wrapper;
 
       treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
         projectRootFile = "flake.nix";
